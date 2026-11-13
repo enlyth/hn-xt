@@ -42,6 +42,8 @@ The list can be detached into a floating window that you can drag anywhere. It s
 
 Checks run every few minutes while an HN tab is open, against the official HN API. If you have several tabs open, only one of them polls.
 
+If you don't want any of this, turn the watcher off in hn-xt → general. That removes the eye icon and the watch links and stops the checks.
+
 ![Floating watcher](docs/screenshots/floating-watcher.png)
 
 ### Filters

@@ -31,17 +31,21 @@ function eyeIcon(): SVGSVGElement {
 let me: string | null = null;
 
 /** Adds the watcher (eye) and "hn-xt" links to the right side of HN's header. */
-export function initHeader(user: string | null): void {
+export function initHeader(user: string | null, watcher: boolean): void {
   me = user;
   const right = document.querySelectorAll('.pagetop')[1];
   if (!right) return;
+  const settingsLink = action('hn-xt', () => openSettings(), { class: 'hnxt-head', title: 'HN-XT settings' });
+  if (!watcher) {
+    right.prepend(settingsLink, ' | ');
+    return;
+  }
 
   const badge = h('span', { class: 'hnxt-badge hnxt-count-badge' });
   const watchedLink = action('', (e) => onEyeClick(e.currentTarget as HTMLElement), {
     class: 'hnxt-head hnxt-eye', title: 'Watched threads and replies', 'aria-label': 'Watched threads and replies',
   });
   watchedLink.append(eyeIcon(), badge);
-  const settingsLink = action('hn-xt', () => openSettings(), { class: 'hnxt-head', title: 'HN-XT settings' });
 
   right.prepend(watchedLink, ' | ', settingsLink, ' | ');
 
@@ -82,9 +86,10 @@ function renderContent(target: HTMLElement, mode: 'dropdown' | 'floating'): void
         replies.length
           ? h('ul', null, ...replies.slice(0, 30).map((r) =>
               h('li', null,
-                h('a', { href: replyUrl(r), onclick: () => markRepliesRead([r.id]) },
-                  h('b', null, r.by), ' ', h('span', { class: 'hnxt-muted' }, timeAgo(r.time)),
-                  h('div', { class: 'hnxt-snippet' }, r.text || '(no text)')),
+                h('a', { href: replyUrl(r), class: 'hnxt-line', title: r.text, onclick: () => markRepliesRead([r.id]) },
+                  h('b', null, r.by),
+                  h('span', { class: 'hnxt-snippet' }, r.text || '(no text)'),
+                  h('span', { class: 'hnxt-muted' }, timeAgo(r.time))),
                 action('×', () => markRepliesRead([r.id]), { class: 'hnxt-close', title: 'Mark read' }))))
           : h('p', { class: 'hnxt-muted' }, 'No new replies.'))
     : h('section', null, h('p', { class: 'hnxt-muted' }, 'Log in to get notified about replies to you.'));
@@ -95,12 +100,14 @@ function renderContent(target: HTMLElement, mode: 'dropdown' | 'floating'): void
       ? h('ul', null, ...threads.map((t) => {
           const n = unreadCount(t);
           return h('li', null,
-            h('a', { href: `item?id=${t.id}`, class: t.gone ? 'hnxt-gone' : '' }, t.title || `item ${t.id}`,
-              ' ', n ? h('span', { class: 'hnxt-badge hnxt-newbadge' }, `+${n}`) : h('span', { class: 'hnxt-muted' }, `${t.latest}`)),
+            h('a', { href: `item?id=${t.id}`, class: `hnxt-line${t.gone ? ' hnxt-gone' : ''}`, title: t.title },
+              h('span', { class: 'hnxt-snippet' }, t.title || `item ${t.id}`),
+              n ? h('span', { class: 'hnxt-badge hnxt-newbadge' }, `+${n}`) : h('span', { class: 'hnxt-muted' }, `${t.latest}`)),
             action('×', () => unwatch(t.id), { class: 'hnxt-close', title: 'Unwatch' }));
         }))
-      : h('p', { class: 'hnxt-muted' }, 'Nothing watched yet. Use "watch" under any story.'));
+      : h('p', { class: 'hnxt-muted' }, 'Nothing watched yet. Click "watch" under a story to add it here.'));
 
+  target.classList.add('hnxt-wl');
   target.replaceChildren(
     replySection,
     threadSection,
@@ -157,10 +164,15 @@ function onEyeClick(anchor: HTMLElement): void {
   if (panel) return closePanel();
   panel = h('div', { class: 'hnxt hnxt-panel' });
   document.body.append(panel);
-  const r = anchor.getBoundingClientRect();
-  panel.style.top = `${r.bottom + window.scrollY + 4}px`;
-  panel.style.right = `${Math.max(8, document.documentElement.clientWidth - r.right - window.scrollX)}px`;
   renderContent(panel, 'dropdown');
+  // Line the panel's right edge up with the eye, but keep it inside the
+  // visible area. On phones the page can be wider than the screen, so use
+  // whichever is narrower.
+  const r = anchor.getBoundingClientRect();
+  const vw = Math.min(document.documentElement.clientWidth, window.visualViewport?.width ?? Infinity);
+  const left = Math.max(8, Math.min(r.right - panel.offsetWidth, vw - panel.offsetWidth - 8));
+  panel.style.top = `${r.bottom + window.scrollY + 4}px`;
+  panel.style.left = `${left + window.scrollX}px`;
 }
 
 // ---------------------------------------------------------------------------

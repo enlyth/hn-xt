@@ -18,6 +18,7 @@ export interface Settings {
   newCountsOnListings: boolean;
   infiniteScroll: boolean;
   inlineReply: boolean;
+  watcher: boolean;
   pollMinutes: number;
   notifyReplies: boolean;
   watcherStartDetached: boolean;
@@ -34,6 +35,7 @@ export const defaultSettings: Settings = {
   newCountsOnListings: true,
   infiniteScroll: true,
   inlineReply: true,
+  watcher: true,
   pollMinutes: 5,
   notifyReplies: true,
   watcherStartDetached: false,

@@ -12,6 +12,7 @@ import { initWatcher } from './features/watcher';
 import { initHeader } from './ui/header';
 import { initItemMenus } from './ui/itemMenu';
 import { openSettings } from './ui/settings';
+import { getSettings } from './storage';
 import { threadToolbar, whenCommentTable } from './ui/toolbar';
 
 // Runs at document-start. Only things that must beat the first paint happen
@@ -24,8 +25,9 @@ function main(): void {
   placeStyles();
   const me = currentUser();
 
-  initHeader(me);
-  initWatcher(me);
+  const watcher = getSettings().watcher;
+  initHeader(me, watcher);
+  if (watcher) initWatcher(me);
   initItemMenus();
   initFilters((draft) => openSettings('filters', draft));
   initTags();
