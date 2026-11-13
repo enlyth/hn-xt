@@ -78,9 +78,9 @@ tr.comtr.hnxt-flash > td > table td.default { animation: hnxt-flash 1.2s ease-ou
 
 /* Your own comments: a dashed blue stripe down the left edge (background-image, so it combines with the highlights above). */
 tr.comtr.hnxt-mine > td > table td.default {
-  padding-left: 10px;
-  background-image: repeating-linear-gradient(to bottom, var(--hnxt-tome-line) 0 7px, transparent 7px 11px);
-  background-size: 4px 100%;
+  padding-left: 6px;
+  background-image: repeating-linear-gradient(to bottom, var(--hnxt-tome-line) 0 6px, transparent 6px 10px);
+  background-size: 2px 100%;
   background-repeat: no-repeat;
 }
 @keyframes hnxt-flash { 0% { box-shadow: inset 0 0 0 2px var(--hnxt-accent); } 100% { box-shadow: inset 2px 0 0 var(--hnxt-accent); } }
