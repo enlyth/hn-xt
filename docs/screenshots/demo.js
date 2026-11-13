@@ -153,7 +153,7 @@
           + `<span id="unv_${id}"></span><span class="navs"> <a class="togg clicky" id="${id}" n="${count(n) + 1}" href="javascript:void(0)">[–]</a><span class="onstory"></span></span>`;
         const comment = row.querySelector('.comment');
         comment.classList.remove('noshow');
-        comment.innerHTML = `<div class="commtext c00">${esc(text)}</div><div class="reply"><p><font size="1"><u><a href="#">reply</a></u></font></p></div>`;
+        comment.innerHTML = `<div class="commtext c00">${esc(text)}</div><div class="reply"><p><font size="1"><u><a href="reply?id=${id}&amp;goto=item%3Fid%3D9000101%23${id}" rel="nofollow">reply</a></u></font></p></div>`;
         out.push(row);
         walk(n.kids, depth + 1);
       }
@@ -177,6 +177,25 @@
   window.GM_notification = () => {};
   // No network in the demo: the poll lock below is fresh, and any request just fails.
   window.GM_xmlhttpRequest = (o) => setTimeout(() => o.onerror && o.onerror(), 0);
+
+  // Inline replies: serve a fake reply form for the made-up comments, and
+  // never let a POST (an actual reply) leave the page.
+  const realFetch = window.fetch.bind(window);
+  window.fetch = async (input, init = {}) => {
+    const url = String(input);
+    if ((init.method || 'GET').toUpperCase() !== 'GET') {
+      const r = new Response('<html><body>Demo mode: replies are not sent.</body></html>');
+      Object.defineProperty(r, 'url', { value: 'https://news.ycombinator.com/comment' });
+      return r;
+    }
+    const m = url.match(/reply\?id=(\d+)/);
+    if (m) {
+      return new Response(`<form action="comment" method="post"><input type="hidden" name="parent" value="${m[1]}">`
+        + `<input type="hidden" name="goto" value="item?id=9000101#${m[1]}"><input type="hidden" name="hmac" value="demo">`
+        + '<textarea name="text"></textarea></form>');
+    }
+    return realFetch(input, init);
+  };
 
   const seed = {
     // Infinite scroll would pull real stories from page 2 into the demo.
