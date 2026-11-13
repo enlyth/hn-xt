@@ -1,5 +1,6 @@
 import { getPageAuthor, type CommentNode, type CommentTree } from '../hn/comments';
-import { getSettings, updateSettings, type SortMode } from '../storage';
+import { pageItemId } from '../hn/page';
+import { getSettings, load, save, type SortMode } from '../storage';
 import { action, h } from '../ui/dom';
 import type { Toolbar } from '../ui/toolbar';
 
@@ -34,10 +35,38 @@ export function resort(): void {
 let buttons: Map<SortMode, HTMLAnchorElement> | null = null;
 let pick: ((mode: SortMode) => void) | null = null;
 
-const savedMode = (): SortMode => {
+// The sort bar on a thread remembers its choice for that thread only.
+// Threads you haven't changed use the default from settings.
+const THREAD_SORT = 'threadSort';
+const MAX_THREADS = 2000;
+type ThreadSorts = Record<string, { mode: SortMode; at: number }>;
+
+const defaultMode = (): SortMode => {
   const m = getSettings().commentSort;
   return isMode(m) ? m : 'default';
 };
+
+const savedMode = (): SortMode => {
+  const id = pageItemId();
+  const m = id ? load<ThreadSorts>(THREAD_SORT, {})[id]?.mode : undefined;
+  return m && isMode(m) ? m : defaultMode();
+};
+
+function rememberForThread(mode: SortMode): void {
+  const id = pageItemId();
+  if (!id) return;
+  const all = load<ThreadSorts>(THREAD_SORT, {});
+  // Picking the default again drops the override, so the thread follows
+  // the setting if you change it later.
+  if (mode === defaultMode()) delete all[id];
+  else all[id] = { mode, at: Date.now() };
+  const keys = Object.keys(all);
+  if (keys.length > MAX_THREADS) {
+    keys.sort((a, b) => all[a].at - all[b].at);
+    for (const k of keys.slice(0, keys.length - MAX_THREADS)) delete all[k];
+  }
+  save(THREAD_SORT, all);
+}
 
 function markActive(mode: SortMode): void {
   for (const [m, a] of buttons ?? []) a.classList.toggle('hnxt-active', m === mode);
@@ -87,7 +116,7 @@ export function initSort(tree: CommentTree, toolbar: Toolbar): void {
   }
   pick = (mode) => {
     apply(mode);
-    updateSettings({ commentSort: mode });
+    rememberForThread(mode);
   };
   reapply = () => {
     if (settings.opBadge) markOp(tree, op);

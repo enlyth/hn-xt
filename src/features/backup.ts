@@ -12,6 +12,7 @@ const KEYS = {
   watched: 'watched threads',
   visits: 'thread visit history',
   watcherWindow: 'watcher window position',
+  threadSort: 'per-thread sort choices',
 } as const;
 
 type Key = keyof typeof KEYS;
@@ -67,6 +68,7 @@ export function importBackup(text: string): string[] {
     watched: isObject,
     visits: isObject,
     watcherWindow: isObject,
+    threadSort: isObject,
   };
   // Validate everything before writing anything, so a bad file changes nothing.
   for (const k of Object.keys(KEYS) as Key[]) {

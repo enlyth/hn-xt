@@ -21,7 +21,7 @@ function eyeIcon(): SVGSVGElement {
   for (const el of [eye, pupil]) {
     el.setAttribute('fill', 'none');
     el.setAttribute('stroke', 'currentColor');
-    el.setAttribute('stroke-width', '2.2');
+    el.setAttribute('stroke-width', '1.6');
     el.setAttribute('stroke-linejoin', 'round');
     svg.append(el);
   }

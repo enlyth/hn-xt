@@ -80,9 +80,10 @@ function generalTab(): HTMLElement {
 
   return h('div', null,
     h('h3', null, 'Comments'),
-    h('label', { class: 'hnxt-row' }, 'Sort threads by ',
+    h('label', { class: 'hnxt-row' }, 'Default sort for threads ',
       h('select', { onchange: (e: Event) => set({ commentSort: (e.target as HTMLSelectElement).value as Settings['commentSort'] }) },
-        ...SORT_MODES.map((m) => h('option', { value: m.mode, selected: s.commentSort === m.mode }, m.label)))),
+        ...SORT_MODES.map((m) => h('option', { value: m.mode, selected: s.commentSort === m.mode }, m.label))),
+      h('span', { class: 'hnxt-muted' }, ' — the sort bar on a thread changes only that thread')),
     check('opBadge', 'Mark the original poster with an OP badge'),
     check('highlightNew', 'Highlight comments that are new since your last visit'),
     check('nextNewKey', 'N / Shift+N jumps to the next / previous new comment'),
