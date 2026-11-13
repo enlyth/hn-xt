@@ -6,7 +6,7 @@ import { initFilters } from './features/filters';
 import { initInfiniteScroll } from './features/infiniteScroll';
 import { initInlineReply } from './features/inlineReply';
 import { initSort, prepareSortBar } from './features/sort';
-import { initListingCounts, initUnread } from './features/unread';
+import { initListingCounts, initOwnComments, initUnread } from './features/unread';
 import { initTags } from './features/tags';
 import { initWatcher } from './features/watcher';
 import { initHeader } from './ui/header';
@@ -29,6 +29,7 @@ function main(): void {
   initItemMenus();
   initFilters((draft) => openSettings('filters', draft));
   initTags();
+  initOwnComments(me);
 
   if (isThread) {
     const tree = parseCommentTree();

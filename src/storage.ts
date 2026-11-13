@@ -13,6 +13,7 @@ export interface Settings {
   opBadge: boolean;
   highlightNew: boolean;
   highlightRepliesToMe: boolean;
+  highlightOwn: boolean;
   nextNewKey: boolean;
   newCountsOnListings: boolean;
   infiniteScroll: boolean;
@@ -28,6 +29,7 @@ export const defaultSettings: Settings = {
   opBadge: true,
   highlightNew: true,
   highlightRepliesToMe: true,
+  highlightOwn: true,
   nextNewKey: true,
   newCountsOnListings: true,
   infiniteScroll: true,

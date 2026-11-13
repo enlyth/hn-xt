@@ -134,6 +134,24 @@
     for (const n of byId.values()) (n.c[1] ? byId.get(n.c[1]).kids : roots).push(n);
     const count = (n) => n.kids.reduce((a, k) => a + 1 + count(k), 0);
 
+    // HN's "root | parent | prev | next" links. "next" skips past the subtree.
+    const order = [];
+    const flatten = (nodes) => nodes.forEach((n) => { order.push(n); flatten(n.kids); });
+    flatten(roots);
+    const navLinks = (n, siblings) => {
+      const [id, parent] = n.c;
+      let root = n;
+      while (root.c[1]) root = byId.get(root.c[1]);
+      const prev = siblings[siblings.indexOf(n) - 1];
+      const next = order[order.indexOf(n) + 1 + count(n)];
+      const links = [];
+      if (parent && byId.get(parent).c[1]) links.push(['root', root.c[0]]);
+      if (parent) links.push(['parent', parent]);
+      if (prev) links.push(['prev', prev.c[0]]);
+      if (next) links.push(['next', next.c[0]]);
+      return links.map(([label, target]) => ` | <a href="#${target}" class="clicky" aria-hidden="true">${label}</a>`).join('');
+    };
+
     const out = [];
     const walk = (nodes, depth) => {
       for (const n of nodes) {
@@ -150,7 +168,7 @@
         if (up) { up.id = `up_${id}`; up.href = '#'; }
         row.querySelector('.comhead').innerHTML =
           `<a href="user?id=${user}" class="hnuser">${user}</a> <span class="age" title="${iso(mins)}"><a href="item?id=${id}">${ago(mins)}</a></span> `
-          + `<span id="unv_${id}"></span><span class="navs"> <a class="togg clicky" id="${id}" n="${count(n) + 1}" href="javascript:void(0)">[–]</a><span class="onstory"></span></span>`;
+          + `<span id="unv_${id}"></span><span class="navs">${navLinks(n, nodes)} <a class="togg clicky" id="${id}" n="${count(n) + 1}" href="javascript:void(0)">[–]</a><span class="onstory"></span></span>`;
         const comment = row.querySelector('.comment');
         comment.classList.remove('noshow');
         comment.innerHTML = `<div class="commtext c00">${esc(text)}</div><div class="reply"><p><font size="1"><u><a href="reply?id=${id}&amp;goto=item%3Fid%3D9000101%23${id}" rel="nofollow">reply</a></u></font></p></div>`;

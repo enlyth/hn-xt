@@ -1,5 +1,5 @@
 import type { CommentTree } from '../hn/comments';
-import { listingStories, onStoriesAdded, pageItemId, pageStory, type StoryInfo } from '../hn/page';
+import { listingStories, onCommentsAdded, onStoriesAdded, pageItemId, pageStory, type StoryInfo } from '../hn/page';
 import { getSettings, load, save } from '../storage';
 import { action, h, timeAgo } from '../ui/dom';
 import type { Toolbar } from '../ui/toolbar';
@@ -106,4 +106,14 @@ export function initListingCounts(): void {
   };
   listingStories().forEach(badge);
   onStoriesAdded((stories) => stories.forEach(badge));
+}
+
+/** Stripes your own comments, on any page that shows comments (threads, /threads, /newcomments). */
+export function initOwnComments(me: string | null): void {
+  if (!me || !getSettings().highlightOwn) return;
+  const mark = (row: Element) => {
+    if (row.querySelector('.comhead a[href^="user?id="]')?.textContent === me) row.classList.add('hnxt-mine');
+  };
+  document.querySelectorAll('tr.athing.comtr').forEach(mark);
+  onCommentsAdded((rows) => rows.forEach(mark));
 }

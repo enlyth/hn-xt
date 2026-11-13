@@ -87,6 +87,7 @@ function generalTab(): HTMLElement {
     check('highlightNew', 'Highlight comments that are new since your last visit'),
     check('nextNewKey', 'N / Shift+N jumps to the next / previous new comment'),
     check('highlightRepliesToMe', 'Highlight replies to your comments'),
+    check('highlightOwn', 'Mark your own comments with a blue stripe'),
     check('inlineReply', 'Reply to comments in place', "select text first to quote it; Ctrl+click \"reply\" opens HN's page"),
     h('h3', null, 'Story lists'),
     check('newCountsOnListings', 'Show "+N" new comments on story lists', 'for threads you have opened'),

@@ -32,7 +32,7 @@ Clicking **reply** opens a reply box under the comment instead of a new page. Se
 
 ### New comments
 
-Comments posted since your last visit are highlighted. <kbd>N</kbd> and <kbd>Shift</kbd>+<kbd>N</kbd> jump between them. Replies to your own comments are highlighted in blue, and story lists show `+N` next to threads you've already opened.
+Comments posted since your last visit are highlighted. <kbd>N</kbd> and <kbd>Shift</kbd>+<kbd>N</kbd> jump between them. Replies to your own comments are highlighted in blue, your own comments get a dashed blue stripe, and story lists show `+N` next to threads you've already opened.
 
 ### Thread watcher
 
