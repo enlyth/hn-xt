@@ -1,6 +1,6 @@
 # HN-XT
 
-A userscript for Hacker News, loosely modelled on 4chan X: comment sorting, new-comment tracking, a thread watcher with reply notifications, filters, user tags and custom CSS.
+A userscript for Hacker News, loosely modelled on 4chan X: comment sorting, new-comment tracking, a thread watcher with reply notifications, filters, inline replies, user tags and custom CSS.
 
 ![Front page with HN-XT](docs/screenshots/front-page.png)
 
