@@ -163,12 +163,23 @@ function onEyeClick(anchor: HTMLElement): void {
   }
   if (panel) return closePanel();
   panel = h('div', { class: 'hnxt hnxt-panel' });
+  panelAnchor = anchor;
   document.body.append(panel);
   renderContent(panel, 'dropdown');
-  // Line the panel's right edge up with the eye, but keep it inside the
-  // visible area. On phones the page can be wider than the screen, so use
-  // whichever is narrower.
-  const r = anchor.getBoundingClientRect();
+  placePanel();
+}
+
+let panelAnchor: HTMLElement | null = null;
+
+/**
+ * Lines the panel's right edge up with the eye, but keeps it inside the
+ * visible area. Runs again on resize, since the header reflows and the eye
+ * moves with it. On phones the page can be wider than the screen, so use
+ * whichever is narrower.
+ */
+function placePanel(): void {
+  if (!panel || !panelAnchor) return;
+  const r = panelAnchor.getBoundingClientRect();
   const vw = Math.min(document.documentElement.clientWidth, window.visualViewport?.width ?? Infinity);
   const left = Math.max(8, Math.min(r.right - panel.offsetWidth, vw - panel.offsetWidth - 8));
   panel.style.top = `${r.bottom + window.scrollY + 4}px`;
@@ -271,4 +282,9 @@ function openFloating(persist = true): void {
   });
 }
 
-window.addEventListener('resize', () => floating && place(floating.el, getWindowState()));
+window.addEventListener('resize', () => {
+  placePanel();
+  if (floating) place(floating.el, getWindowState());
+});
+// Mobile browsers resize the visual viewport (pinch zoom, URL bar) without a window resize.
+window.visualViewport?.addEventListener('resize', placePanel);
