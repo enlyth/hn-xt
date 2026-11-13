@@ -6,14 +6,11 @@ A userscript for Hacker News, loosely modelled on 4chan X: comment sorting, new-
 
 ## Install
 
-Requires Tampermonkey or Violentmonkey.
+Requires Tampermonkey or Violentmonkey. Open [the latest release's `hn-xt.user.js`](https://github.com/enlyth/hn-xt/releases/latest/download/hn-xt.user.js) and your userscript manager will offer to install it. Updates come from the same place.
 
-```sh
-npm install
-npm run build
-```
+To build it yourself instead, run `npm install && npm run build` and install `dist/hn-xt.user.js`.
 
-Then open `dist/hn-xt.user.js` in your browser, or drag it into the userscript manager. Settings live under the **hn-xt** link in HN's header.
+Settings live under the **hn-xt** link in HN's header.
 
 ## Features
 
