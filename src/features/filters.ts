@@ -163,6 +163,12 @@ export function applyFilters(rules = getRules()): void {
     return typeof test === 'string' ? [] : [{ rule: r, test }];
   });
   const counts = new Map<string, number>();
+  if (!compiled.length) {
+    // Nothing to match; skip reading the text of every story and comment.
+    lastCounts = counts;
+    for (const cb of listeners) cb(counts);
+    return;
+  }
   let hiddenStories = 0;
 
   for (const t of collectTargets()) {

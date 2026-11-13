@@ -299,3 +299,28 @@ a.hnxt-eye { white-space: nowrap; }
 .hnxt-qr-error { color: #c0392b; }
 a.hnxt-has-draft::after { content: ' (draft)'; color: var(--hnxt-accent-text); }
 tr.comtr.hnxt-mine-new > td > table td.default { background: var(--hnxt-tint); box-shadow: inset 2px 0 0 var(--hnxt-accent); padding-left: 6px; border-radius: 0 3px 3px 0; }
+
+/* ---------------------------------------------------------------- loading */
+.hnxt-toolbar.hnxt-loading .hnxt-seg { pointer-events: none; }
+.hnxt-toolbar.hnxt-loading .hnxt-toolbar-left { opacity: 0.7; }
+.hnxt-loading-note { font-size: 8pt; animation: hnxt-pulse 1.4s ease-in-out infinite; }
+@keyframes hnxt-pulse { 50% { opacity: 0.4; } }
+/* A saved non-default sort: dim comments until they've been reordered. */
+table.comment-tree { transition: opacity 0.2s ease-out; }
+table.comment-tree.hnxt-pending { opacity: 0.35; }
+@media (prefers-reduced-motion: reduce) {
+  .hnxt-loading-note { animation: none; }
+  table.comment-tree { transition: none; }
+}
+
+/* The comment ▾ menu: drawn by CSS so thousands of rows don't need extra DOM (see itemMenu.ts). */
+tr.athing.comtr .comhead > .age::after {
+  content: '▾';
+  margin-left: 4px;
+  padding: 0 3px;
+  border-radius: 2px;
+  color: var(--hnxt-accent-text);
+  cursor: pointer;
+}
+tr.athing.comtr .comhead > .age { cursor: default; }
+tr.athing.comtr .comhead > .age:hover::after { background: var(--hnxt-tint); }

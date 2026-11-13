@@ -1,4 +1,4 @@
-import { listingStories, onCommentsAdded, onStoriesAdded, type StoryInfo } from '../hn/page';
+import { listingStories, onStoriesAdded, type StoryInfo } from '../hn/page';
 import { action } from './dom';
 import { openMenu, type MenuItem } from './menu';
 
@@ -49,12 +49,35 @@ function addStoryMenu(s: StoryInfo): void {
 export function initItemMenus(): void {
   listingStories().forEach(addStoryMenu);
   onStoriesAdded((stories) => stories.forEach(addStoryMenu));
-  document.querySelectorAll<HTMLElement>('tr.athing.comtr').forEach(addCommentMenu);
-  onCommentsAdded((rows) => rows.forEach(addCommentMenu));
+  initCommentMenus();
 }
 
-function addCommentMenu(row: HTMLElement): void {
-  const age = row.querySelector('.comhead .age');
-  const user = row.querySelector('.comhead a[href^="user?id="]')?.textContent ?? null;
-  if (age && user && !row.querySelector('.hnxt-menu-btn')) age.after(button({ kind: 'comment', user, domain: null, row }));
+/**
+ * Comments don't get a real button each: on a thread with thousands of
+ * comments, inserting one per row makes the browser re-lay out the whole
+ * table (seconds on big threads). Instead the ▾ is drawn by CSS after each
+ * comment's timestamp (`.comhead .age::after`), and one listener handles
+ * clicks on it. Clicks on the pseudo-element land on the `.age` span itself,
+ * while clicks on the timestamp link land on the link.
+ */
+function initCommentMenus(): void {
+  const hit = (e: Event) => {
+    const t = e.target as Element;
+    return t instanceof HTMLElement && t.matches('tr.athing.comtr .comhead > .age') ? t : null;
+  };
+  // Keeps any text selection alive so filters can pre-fill it.
+  document.addEventListener('mousedown', (e) => {
+    if (hit(e)) e.preventDefault();
+  });
+  document.addEventListener('click', (e) => {
+    const age = hit(e);
+    if (!age) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const row = age.closest<HTMLElement>('tr.athing.comtr')!;
+    const user = row.querySelector('.comhead a[href^="user?id="]')?.textContent ?? null;
+    if (!user) return;
+    const ctx: MenuContext = { kind: 'comment', user, domain: null, row, selection: selectionWithin(row), button: age };
+    openMenu(age, providers.flatMap((p) => p(ctx)), { alignRight: true });
+  });
 }

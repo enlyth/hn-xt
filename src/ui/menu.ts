@@ -20,7 +20,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /** A small dropdown under `anchor`. */
-export function openMenu(anchor: HTMLElement, items: MenuItem[]): void {
+export function openMenu(anchor: HTMLElement, items: MenuItem[], opts: { alignRight?: boolean } = {}): void {
   close();
   const menu = h('div', { class: 'hnxt hnxt-menu', role: 'menu' },
     ...items.map((it) => action(it.label, () => {
@@ -29,7 +29,9 @@ export function openMenu(anchor: HTMLElement, items: MenuItem[]): void {
     }, { role: 'menuitem' })));
   document.body.append(menu);
   const r = anchor.getBoundingClientRect();
-  const left = Math.min(r.left + window.scrollX, window.scrollX + document.documentElement.clientWidth - menu.offsetWidth - 8);
+  // alignRight: start under the anchor's right end (where a CSS-drawn ▾ sits).
+  const x = opts.alignRight ? r.right - 12 : r.left;
+  const left = Math.min(x + window.scrollX, window.scrollX + document.documentElement.clientWidth - menu.offsetWidth - 8);
   menu.style.left = `${Math.max(8, left)}px`;
   menu.style.top = `${r.bottom + window.scrollY + 2}px`;
   open = menu;

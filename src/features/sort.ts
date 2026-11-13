@@ -31,7 +31,40 @@ export function resort(): void {
   reapply?.();
 }
 
+let buttons: Map<SortMode, HTMLAnchorElement> | null = null;
+let pick: ((mode: SortMode) => void) | null = null;
+
+const savedMode = (): SortMode => {
+  const m = getSettings().commentSort;
+  return isMode(m) ? m : 'default';
+};
+
+function markActive(mode: SortMode): void {
+  for (const [m, a] of buttons ?? []) a.classList.toggle('hnxt-active', m === mode);
+}
+
+/**
+ * Draws the sort buttons straight away (before the comments have loaded),
+ * showing the saved mode. They start working once `initSort` has the tree.
+ * A non-default saved sort fades the comments until they've been reordered,
+ * so you don't start reading in one order and watch it reshuffle.
+ */
+export function prepareSortBar(toolbar: Toolbar, table: HTMLTableElement): void {
+  if (buttons) return;
+  buttons = new Map();
+  toolbar.left.append(h('span', { class: 'hnxt-label' }, 'sort'));
+  for (const { mode, label, title } of SORT_MODES) {
+    const a = action(label, () => pick?.(mode), { title, class: 'hnxt-seg' });
+    buttons.set(mode, a);
+    toolbar.left.append(a);
+  }
+  const mode = savedMode();
+  markActive(mode);
+  if (mode !== 'default') table.classList.add('hnxt-pending');
+}
+
 export function initSort(tree: CommentTree, toolbar: Toolbar): void {
+  prepareSortBar(toolbar, tree.table);
   const settings = getSettings();
   const op = getPageAuthor();
   if (settings.opBadge) markOp(tree, op);
@@ -45,31 +78,28 @@ export function initSort(tree: CommentTree, toolbar: Toolbar): void {
     op: (a, b) => Number(opInvolved.has(b)) - Number(opInvolved.has(a)) || byOriginal(a, b),
   };
 
-  const buttons = new Map<SortMode, HTMLAnchorElement>();
-  toolbar.left.append(h('span', { class: 'hnxt-label' }, 'sort'));
-  SORT_MODES.forEach(({ mode, label, title }) => {
-    const a = action(label, () => {
-      apply(mode);
-      updateSettings({ commentSort: mode });
-    }, { title, class: 'hnxt-seg' });
-    buttons.set(mode, a);
-    toolbar.left.append(a);
-  });
-
   let current: SortMode = 'default';
   function apply(mode: SortMode) {
     current = mode;
     if (mode === 'flat') applyFlat(tree);
     else applyTree(tree, comparators[mode]);
-    for (const [m, a] of buttons) a.classList.toggle('hnxt-active', m === mode);
+    markActive(mode);
   }
+  pick = (mode) => {
+    apply(mode);
+    updateSettings({ commentSort: mode });
+  };
   reapply = () => {
     if (settings.opBadge) markOp(tree, op);
     opInvolved = computeOpInvolved(tree, op);
     apply(current);
   };
 
-  apply(isMode(settings.commentSort) ? settings.commentSort : 'default');
+  // HN already rendered the default order, so there's nothing to move.
+  const initial = savedMode();
+  if (initial !== 'default') apply(initial);
+  else markActive('default');
+  tree.table.classList.remove('hnxt-pending');
 }
 
 // ---------------------------------------------------------------------------

@@ -15,7 +15,8 @@ export default defineConfig({
         version: pkg.version,
         description: 'Comment sorting, thread watching and filters for Hacker News',
         match: ['https://news.ycombinator.com/*'],
-        'run-at': 'document-end',
+        // Early, so the thread toolbar can be in place before the comments render.
+        'run-at': 'document-start',
         connect: ['hacker-news.firebaseio.com'],
         homepageURL: 'https://github.com/enlyth/hn-xt',
         downloadURL: releaseUrl,
@@ -23,6 +24,13 @@ export default defineConfig({
       },
       build: {
         fileName: 'hn-xt.user.js',
+        // A <style> we can find again: main.ts moves it after HN's stylesheet once the page is parsed.
+        cssSideEffects: (css: string) => {
+          const style = document.createElement('style');
+          style.id = 'hnxt-style';
+          style.textContent = css;
+          (document.head || document.documentElement).append(style);
+        },
       },
     }),
   ],
