@@ -76,6 +76,17 @@ export function storiesAdded(rows: HTMLTableRowElement[]): void {
   for (const cb of storyListeners) cb(stories);
 }
 
+// Comment rows added after page load (your own inline replies).
+const commentListeners: ((rows: HTMLTableRowElement[]) => void)[] = [];
+
+export function onCommentsAdded(cb: (rows: HTMLTableRowElement[]) => void): void {
+  commentListeners.push(cb);
+}
+
+export function commentsAdded(rows: HTMLTableRowElement[]): void {
+  for (const cb of commentListeners) cb(rows);
+}
+
 /** The story an /item page is about, if it is a story. */
 export function pageStory(): StoryInfo | null {
   const row = document.querySelector<HTMLTableRowElement>('.fatitem tr.athing.submission');

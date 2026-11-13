@@ -4,6 +4,7 @@ import { currentUser } from './hn/page';
 import { initCustomCss } from './features/customCss';
 import { initFilters } from './features/filters';
 import { initInfiniteScroll } from './features/infiniteScroll';
+import { initInlineReply } from './features/inlineReply';
 import { initSort } from './features/sort';
 import { initListingCounts, initUnread } from './features/unread';
 import { initTags } from './features/tags';
@@ -29,7 +30,9 @@ if (location.pathname === '/item') {
     initSort(tree, toolbar);
     initUnread(tree, toolbar, me);
   }
+  initInlineReply(tree, me);
 } else {
+  initInlineReply(null, me);
   initListingCounts();
   initInfiniteScroll();
 }

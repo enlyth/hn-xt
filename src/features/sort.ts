@@ -24,11 +24,18 @@ const byNew: Compare = (a, b) => b.id - a.id;
 const byOld: Compare = (a, b) => a.id - b.id;
 const byOriginal: Compare = (a, b) => a.originalIndex - b.originalIndex;
 
+let reapply: (() => void) | null = null;
+
+/** Re-runs the current sort, e.g. after a comment was added to the tree. */
+export function resort(): void {
+  reapply?.();
+}
+
 export function initSort(tree: CommentTree, toolbar: Toolbar): void {
   const settings = getSettings();
   const op = getPageAuthor();
   if (settings.opBadge) markOp(tree, op);
-  const opInvolved = computeOpInvolved(tree, op);
+  let opInvolved = computeOpInvolved(tree, op);
 
   const comparators: Record<Exclude<SortMode, 'flat'>, Compare> = {
     default: byOriginal,
@@ -49,11 +56,18 @@ export function initSort(tree: CommentTree, toolbar: Toolbar): void {
     toolbar.left.append(a);
   });
 
+  let current: SortMode = 'default';
   function apply(mode: SortMode) {
+    current = mode;
     if (mode === 'flat') applyFlat(tree);
     else applyTree(tree, comparators[mode]);
     for (const [m, a] of buttons) a.classList.toggle('hnxt-active', m === mode);
   }
+  reapply = () => {
+    if (settings.opBadge) markOp(tree, op);
+    opInvolved = computeOpInvolved(tree, op);
+    apply(current);
+  };
 
   apply(isMode(settings.commentSort) ? settings.commentSort : 'default');
 }

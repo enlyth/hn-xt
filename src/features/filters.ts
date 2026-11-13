@@ -1,4 +1,4 @@
-import { listingStories, onStoriesAdded } from '../hn/page';
+import { listingStories, onCommentsAdded, onStoriesAdded } from '../hn/page';
 import { load, onChange, save } from '../storage';
 import { action, h, toast } from '../ui/dom';
 import { registerMenuItems } from '../ui/itemMenu';
@@ -255,6 +255,7 @@ export function initFilters(openEditor: OpenEditor): void {
   applyFilters(live);
   onChange<Rule[]>(KEY, (r) => applyFilters(r ?? []));
   onStoriesAdded(() => applyFilters());
+  onCommentsAdded(() => applyFilters());
 }
 
 function quickAdd(partial: Partial<Rule>): void {

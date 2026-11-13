@@ -36,8 +36,9 @@ export interface CommentTree {
   trailing: Element[];
 }
 
-export function parseCommentTree(): CommentTree | null {
-  const table = document.querySelector<HTMLTableElement>('table.comment-tree');
+/** Parses the comment table in `root` (the current page by default, or a fetched document). */
+export function parseCommentTree(root: ParentNode = document): CommentTree | null {
+  const table = root.querySelector<HTMLTableElement>('table.comment-tree');
   if (!table) return null;
   const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>('tr.athing.comtr'));
   if (rows.length === 0) return null;
@@ -88,6 +89,39 @@ export function parseCommentTree(): CommentTree | null {
   for (let el = lastRow.nextElementSibling; el; el = el.nextElementSibling) trailing.push(el);
 
   return { roots, all, byId, container, table, trailing };
+}
+
+/**
+ * Adds a freshly posted comment row under `parent` (or as a top-level comment).
+ * The row gets the indent HN would have given it, and it sorts right after its
+ * parent in the default order, so your own reply shows up where you wrote it.
+ */
+export function addComment(tree: CommentTree, row: HTMLTableRowElement, parent: CommentNode | null): CommentNode {
+  const indent = parent ? parent.indent + 1 : 0;
+  const indCell = row.querySelector<HTMLElement>('td.ind');
+  const spacer = indCell?.querySelector('img') ?? null;
+  indCell?.setAttribute('indent', String(indent));
+  spacer?.setAttribute('width', String(indent * 40));
+  row.classList.remove('noshow', 'coll');
+
+  const node: CommentNode = {
+    id: Number(row.id),
+    row,
+    indent,
+    author: row.querySelector('.comhead a[href^="user?id="]')?.textContent ?? null,
+    parent,
+    children: [],
+    originalIndex: parent ? parent.originalIndex + 0.5 : -1,
+    descendants: 0,
+    indCell,
+    spacer,
+    spacerWidth: spacer?.getAttribute('width') ?? null,
+  };
+  (parent ? parent.children : tree.roots).unshift(node);
+  for (let p = parent; p; p = p.parent) p.descendants++;
+  tree.all.push(node);
+  tree.byId.set(node.id, node);
+  return node;
 }
 
 /** Author of the item the page is about (story submitter, or the comment's author on a comment permalink). */

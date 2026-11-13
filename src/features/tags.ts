@@ -1,4 +1,4 @@
-import { onStoriesAdded } from '../hn/page';
+import { onCommentsAdded, onStoriesAdded } from '../hn/page';
 import { load, onChange, save } from '../storage';
 import { action, h, toast } from '../ui/dom';
 import { registerMenuItems } from '../ui/itemMenu';
@@ -55,6 +55,7 @@ export function initTags(): void {
   render();
   onChange(KEY, render);
   onStoriesAdded(render);
+  onCommentsAdded(render);
   registerMenuItems(({ user, button }) => {
     if (!user) return [];
     const has = !!getTags()[user];

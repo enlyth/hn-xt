@@ -1,4 +1,4 @@
-import { listingStories, onStoriesAdded, type StoryInfo } from '../hn/page';
+import { listingStories, onCommentsAdded, onStoriesAdded, type StoryInfo } from '../hn/page';
 import { action } from './dom';
 import { openMenu, type MenuItem } from './menu';
 
@@ -49,9 +49,12 @@ function addStoryMenu(s: StoryInfo): void {
 export function initItemMenus(): void {
   listingStories().forEach(addStoryMenu);
   onStoriesAdded((stories) => stories.forEach(addStoryMenu));
-  for (const row of document.querySelectorAll<HTMLElement>('tr.athing.comtr')) {
-    const age = row.querySelector('.comhead .age');
-    const user = row.querySelector('.comhead a[href^="user?id="]')?.textContent ?? null;
-    if (age && user) age.after(button({ kind: 'comment', user, domain: null, row }));
-  }
+  document.querySelectorAll<HTMLElement>('tr.athing.comtr').forEach(addCommentMenu);
+  onCommentsAdded((rows) => rows.forEach(addCommentMenu));
+}
+
+function addCommentMenu(row: HTMLElement): void {
+  const age = row.querySelector('.comhead .age');
+  const user = row.querySelector('.comhead a[href^="user?id="]')?.textContent ?? null;
+  if (age && user && !row.querySelector('.hnxt-menu-btn')) age.after(button({ kind: 'comment', user, domain: null, row }));
 }

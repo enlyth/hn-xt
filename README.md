@@ -27,6 +27,10 @@ A toolbar above every thread lets you sort comments by HN's default order, newes
 
 ![Flat view](docs/screenshots/flat.png)
 
+### Inline replies
+
+Clicking **reply** opens a reply box under the comment instead of a new page. Select text in a comment before clicking to quote it. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> sends. Drafts are kept per comment until you send them. After sending, your reply appears in place, wherever the current sort puts it. <kbd>Ctrl</kbd>+click still opens HN's reply page.
+
 ### New comments
 
 Comments posted since your last visit are highlighted. <kbd>N</kbd> and <kbd>Shift</kbd>+<kbd>N</kbd> jump between them. Replies to your own comments are highlighted in blue, and story lists show `+N` next to threads you've already opened.
